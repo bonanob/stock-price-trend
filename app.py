@@ -10,17 +10,14 @@ import pandas as pd
 import datetime as dt
 import yfinance as yf
 
-# import numpy as np
-# import math
-
-# from sklearn.preprocessing import MinMaxScaler
-# from keras.models import Sequential
-# from keras.layers import Dense, LSTM
-
+import numpy as np
+# from sklearn.linear_model import LinearRegression
+# from sklearn.preprocessing import PolynomialFeatures
 
 # Yesterday because today's market might not be closed.
 today = dt.datetime.now()
 yesterday = (today - dt.timedelta(days=1)).strftime("%Y-%m-%d")
+
 
 app = dash.Dash(__name__, external_stylesheets=[dbc.themes.LUX, "style.css"],
                 # Mobile responsive
@@ -144,6 +141,7 @@ def update_graph(symbol, start_date, end_date):
         fig.add_trace(go.Scatter(x=hist.index, y=hist["ma_120"], marker_color="pink", name="MA120"), row=1, col=1)
         fig.add_trace(go.Bar(x=hist.index, y=hist["Volume"], marker_color="black", showlegend=False), row=2, col=1)
 
+
         # plot styling
         fig.update_layout(
             margin=dict(l=80, r=80, t=80, b=80),
@@ -192,17 +190,3 @@ def set_button_dates(m1, m6, y1, y5):
 
 if __name__ == "__main__":
     app.run_server(debug=True, port=8000)
-
-    # token = "Tpk_b880885bcfdb4be2aa9eb43c6455eabb"
-    #
-    # api_url = f"https://sandbox.iexapis.com/stable/stock/aapl/quote/?token={token}"
-    #
-    # data = requests.get(api_url).json()
-    # print(data)
-    #
-    # api_url1 = f"https://sandbox.iexapis.com/stable/search/apple/?token={token}"
-    # data1 = requests.get(api_url1).json()
-    # print(data1)
-
-    # df = pd.read_json(data[0])
-    # print(df)
