@@ -1,4 +1,9 @@
 # Import the libraries
+import datetime as dt
+
+import yfinance as yf
+import pandas as pd
+import numpy as np
 import dash
 import dash_core_components as dcc
 import dash_html_components as html
@@ -6,18 +11,10 @@ from dash.dependencies import Output, Input
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 import dash_bootstrap_components as dbc
-import pandas as pd
-import datetime as dt
-import yfinance as yf
-
-import numpy as np
-# from sklearn.linear_model import LinearRegression
-# from sklearn.preprocessing import PolynomialFeatures
 
 # Yesterday because today's market might not be closed.
 today = dt.datetime.now()
 yesterday = (today - dt.timedelta(days=1)).strftime("%Y-%m-%d")
-
 
 app = dash.Dash(__name__, external_stylesheets=[dbc.themes.LUX, "style.css"],
                 # Mobile responsive
@@ -76,6 +73,7 @@ app.layout = dbc.Container([
         ]),
     ]),
 
+    # This Row is for the error box.
     dbc.Row([
         dbc.Toast(
             [html.P("We could not find anything. :(", className="mb-0")],
@@ -102,10 +100,13 @@ app.layout = dbc.Container([
      Output("err-msg", "is_open"), ],
     [Input("symbol", "value"),
      Input("date_range", "start_date"),
-     Input("date_range", "end_date"),
-     ]
+     Input("date_range", "end_date"),],
 )
 def update_graph(symbol, start_date, end_date):
+    """
+    1. Searches symbol
+
+    """
     # Set initial ticker symbol
     if symbol is None:
         yf_symbol = yf.Ticker("^GDAXI")
@@ -127,6 +128,7 @@ def update_graph(symbol, start_date, end_date):
     # To make two plots that share x axis
     fig = make_subplots(rows=2, cols=1, shared_xaxes=True, vertical_spacing=0.03, row_width=[0.2, 0.7])
 
+    # If no results for the stock symbol
     if hist.empty:
         return fig, "", True
 
@@ -140,7 +142,6 @@ def update_graph(symbol, start_date, end_date):
         fig.add_trace(go.Scatter(x=hist.index, y=hist["ma_60"], marker_color="cyan", name="MA60"), row=1, col=1)
         fig.add_trace(go.Scatter(x=hist.index, y=hist["ma_120"], marker_color="pink", name="MA120"), row=1, col=1)
         fig.add_trace(go.Bar(x=hist.index, y=hist["Volume"], marker_color="black", showlegend=False), row=2, col=1)
-
 
         # plot styling
         fig.update_layout(
